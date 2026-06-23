@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environments
+.conda/
+venv/
+.venv/
+env/
+.env
+
+# Node
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Data / Generated
+escavador_perfis/
+scriptLattes/resultados/
+scriptLattes/json/
+scriptLattes/venv/
+scriptLattes/lista_alunos.txt
+processamento_logs.txt
+mapeamento_lattes.json.bak
+
+# Logs
+*.log
+
+# Embedded third-party repo
+scriptLattes/

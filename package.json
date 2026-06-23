@@ -1,0 +1,12 @@
+{
+  "name": "scanner-pos-mestrado-pro",
+  "version": "2.0.0",
+  "description": "Pipeline Híbrido Avançado de Extração de Egressos com IA",
+  "main": "api.py",
+  "scripts": {
+    "dev": "python api.py"
+  },
+  "keywords": [],
+  "author": "Emanuel Silva",
+  "license": "ISC"
+}

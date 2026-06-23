@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner Pós-Mestrado Pro</title>
+    <style>
+        :root {
+            --bg-main: #0b0f17;
+            --bg-card: #121b2d;
+            --border: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --secondary: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+
+        body { background-color: var(--bg-main); color: var(--text-main); padding: 2.5rem; }
+
+        header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .action-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.2rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .controls-group { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+
+        input {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.65rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            outline: none;
+        }
+        
+        input:focus { border-color: var(--primary); }
+
+        #limit { width: 80px; text-align: center; }
+        #buscaNome { width: 300px; }
+
+        button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 0.65rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        button:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            box-shadow: none;
+        }
+        .btn-outline:hover { background: #1e293b; color: #fff; box-shadow: none; border-color: #334155; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .card span { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+        .card h2 { font-size: 2rem; margin-top: 0.4rem; font-weight: 800; color: var(--primary); }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table { width: 100%; border-collapse: collapse; background: var(--bg-card); text-align: left; }
+        th, td { padding: 1.1rem 1.3rem; border-bottom: 1px solid var(--border); }
+        th { background-color: #162032; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #162237; }
+
+        .badge { padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
+        .badge-lattes { background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-escavador { background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .badge-none { background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        
+        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; border-top-color: var(--text-muted); animation: spin 0.8s linear infinite; margin-right: 6px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎓 Scanner de Atividades Pós-Mestrado</h1>
+    </header>
+
+    <div class="action-bar">
+        <div class="controls-group">
+            <input type="number" id="limit" value="10" min="1" max="165" title="Qtd. para extração em lote">
+            <button onclick="iniciarAnaliseEmLote()">🚀 Varredura em Lote</button>
+            <span style="color:var(--border);">|</span>
+            <input type="text" id="buscaNome" list="listaNomesData" placeholder="Buscar aluno específico...">
+            <datalist id="listaNomesData"></datalist>
+            <button onclick="buscarAlunoEspecifico()" style="background: var(--secondary); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);">🔍 Analisar Único</button>
+        </div>
+        <div class="controls-group">
+            <button class="btn-outline" onclick="dispararAtualizacao('lattes')">🔄 Atualizar JSONs (Lattes)</button>
+            <button class="btn-outline" onclick="dispararAtualizacao('escavador')">🔄 Atualizar HTMLs (Escavador)</button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card"><span>Alunos Mapeados</span><h2 id="totalAlunos">-</h2></div>
+        <div class="card"><span>Processados nesta Sessão</span><h2 id="totalProcessados">0</h2></div>
+        <div class="card"><span>Status do Sistema</span><h2 id="statusEngine" style="color: #64b5f6;">Aguardando...</h2></div>
+    </div>
+
+    <div class="table-container">
+        <table id="tabelaResultados">
+            <thead>
+                <tr>
+                    <th style="width: 25%">Nome</th>
+                    <th style="width: 15%">Data de Defesa</th>
+                    <th style="width: 15%">Origem do Dado</th>
+                    <th style="width: 45%">Resumo Executivo (IA Local)</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabela">
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic;">
+                        Utilize a barra de ferramentas para iniciar uma varredura.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + "/api";
+        let listaAlunos = [];
+        let contadorProcessados = 0;
+
+        async function carregarBaseDados() {
+            try {
+                const res = await fetch(`${API_URL}/alunos`);
+                listaAlunos = await res.json();
+                document.getElementById('totalAlunos').innerText = listaAlunos.length;
+                
+                // Popula o Datalist para autocompletar o nome na barra de busca
+                const datalist = document.getElementById('listaNomesData');
+                listaAlunos.forEach(aluno => {
+                    const option = document.createElement('option');
+                    option.value = aluno.nome;
+                    datalist.appendChild(option);
+                });
+            } catch (err) {
+                console.error("Erro ao conectar com a API:", err);
+            }
+        }
+
+        async function dispararAtualizacao(alvo) {
+            const url = alvo === 'lattes' ? '/update/lattes' : '/update/escavador';
+            document.getElementById('statusEngine').innerText = `Rodando ${alvo}...`;
+            document.getElementById('statusEngine').style.color = '#f59e0b';
+            
+            try {
+                await fetch(`${API_URL}${url}`, { method: 'POST' });
+                alert(`Comando enviado com sucesso!\nO processo do ${alvo.toUpperCase()} está rodando em segundo plano. Verifique o terminal do VS Code para acompanhar o progresso.`);
+            } catch (e) {
+                alert("Erro ao tentar acionar o script.");
+            }
+        }
+
+        async function processarERenderizarLinha(aluno) {
+            const corpo = document.getElementById('corpoTabela');
+            const rowId = `row-${aluno.nome.replace(/[^a-zA-Z0-9]/g, '-')}`;
+            
+            const rowHTML = `
+                <tr id="${rowId}">
+                    <td><strong style="color:#fff;">${aluno.nome}</strong></td>
+                    <td><span style="color:var(--text-muted); font-family:monospace;">${aluno.defesa}</span></td>
+                    <td><span class="badge" style="background:#1e293b; color:#94a3b8;"><div class="spinner"></div> Processando...</span></td>
+                    <td style="color: var(--text-muted); font-style: italic;">Analisando arquivos locais com Ollama...</td>
+                </tr>
+            `;
+            corpo.insertAdjacentHTML('beforeend', rowHTML);
+
+            try {
+                const res = await fetch(`${API_URL}/analisar/${encodeURIComponent(aluno.nome)}`);
+                const resultado = await res.json();
+
+                const badgeStyle = resultado.origem.includes("Lattes") ? "badge-lattes" : (resultado.origem.includes("Escavador") ? "badge-escavador" : "badge-none");
+                const textoResumo = resultado.resumo || resultado.resumo_ia || "Nenhum resumo gerado.";
+                
+                document.getElementById(rowId).innerHTML = `
+                    <td><strong style="color:#fff;">${resultado.nome}</strong></td>
+                    <td><span style="color:var(--text-muted); font-family:monospace;">${resultado.defesa}</span></td>
+                    <td><span class="badge ${badgeStyle}">${resultado.origem}</span></td>
+                    <td style="line-height: 1.5; color: #cbd5e1;">${textoResumo}</td>
+                `;
+            } catch (e) {
+                document.getElementById(rowId).cells[3].innerText = "Falha crítica de comunicação.";
+            }
+
+            contadorProcessados++;
+            document.getElementById('totalProcessados').innerText = contadorProcessados;
+        }
+
+        async function iniciarAnaliseEmLote() {
+            const limit = parseInt(document.getElementById('limit').value) || 10;
+            const alvos = listaAlunos.slice(0, limit);
+            
+            document.getElementById('corpoTabela').innerHTML = ""; 
+            contadorProcessados = 0;
+            document.getElementById('statusEngine').innerText = "Analisando em Lote";
+            document.getElementById('statusEngine').style.color = '#10b981';
+
+            for (let aluno of alvos) {
+                await processarERenderizarLinha(aluno);
+            }
+            document.getElementById('statusEngine').innerText = "Concluído";
+        }
+
+        async function buscarAlunoEspecifico() {
+            const nomeBuscado = document.getElementById('buscaNome').value.trim().toUpperCase();
+            if(!nomeBuscado) return alert("Digite ou selecione o nome de um aluno.");
+
+            const aluno = listaAlunos.find(a => a.nome.toUpperCase() === nomeBuscado);
+            if (!aluno) return alert("Aluno não encontrado na base do academicData.ts");
+
+            document.getElementById('corpoTabela').innerHTML = ""; 
+            contadorProcessados = 0;
+            document.getElementById('statusEngine').innerText = "Análise Individual";
+            document.getElementById('statusEngine').style.color = '#3b82f6';
+
+            await processarERenderizarLinha(aluno);
+            document.getElementById('statusEngine').innerText = "Concluído";
+        }
+
+        window.onload = carregarBaseDados;
+    </script>
+</body>
+</html>
