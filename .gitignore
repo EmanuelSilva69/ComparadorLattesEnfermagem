@@ -29,7 +29,6 @@ Thumbs.db
 .DS_Store
 
 # Data / Generated
-escavador_perfis/
 scriptLattes/resultados/
 scriptLattes/json/
 scriptLattes/venv/
