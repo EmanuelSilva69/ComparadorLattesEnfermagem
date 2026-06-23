@@ -66,8 +66,15 @@ Acessar em: http://localhost:8000
 ├── mapeamento_lattes.json # Cache de IDs Lattes / URLs Escavador
 ├── public/
 │   └── index.html         # Frontend SPA
-└── scriptLattes/          # Ferramenta de extração Lattes
+└── scriptLattes/          # Ferramenta de extração Lattes (fork customizado)
 ```
+
+## scriptLattes
+
+O `scriptLattes/` incluído neste repositório é um **fork customizado** do projeto original de Jesús P. Mena-Chalco e Roberto M. Cesar-Jr (IME/USP), com melhorias na extração de projetos de desenvolvimento, áreas de atuação e exportação JSON individual.
+
+- **Original**: [github.com/jpmenachalco/scriptLattes](https://github.com/jpmenachalco/scriptLattes)
+- **Licença**: GNU GPL
 
 ## Tecnologias
 

@@ -40,5 +40,13 @@ mapeamento_lattes.json.bak
 # Logs
 *.log
 
-# Embedded third-party repo
-scriptLattes/
+# scriptLattes - generated & local files only
+scriptLattes/.git/
+scriptLattes/venv/
+scriptLattes/cache/
+scriptLattes/resultados/
+scriptLattes/json/
+scriptLattes/chrome-win64/
+scriptLattes/chrome-win64.zip
+scriptLattes/chromedriver
+scriptLattes/lista_alunos.txt
