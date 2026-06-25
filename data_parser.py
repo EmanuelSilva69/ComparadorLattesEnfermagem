@@ -15,21 +15,55 @@ def load_students(filepath="academicData.ts"):
         content = f.read()
 
     students = []
-    # Busca blocos de objetos que tenham nome e defesa
-    matches = re.finditer(r'nome:\s*\"([^\"]+)\".*?defesa:\s*\"([^\"]*)\"', content, re.DOTALL)
+    # Busca blocos de objetos que tenham nome, defesa, turma e conclusaoNoPrazo
+    matches = re.finditer(
+        r'nome:\s*\"([^\"]+)\".*?defesa:\s*\"([^\"]*)\".*?conclusaoNoPrazo:\s*\"([^\"]+)\".*?turma:\s*(\d+)',
+        content, re.DOTALL
+    )
     
     for m in matches:
         nome = m.group(1).strip()
         defesa = m.group(2).strip()
+        status = m.group(3).strip()
+        turma = int(m.group(4))
         
-        # Ignora alunos com defesa em branco ("EM_ANDAMENTO")
-        if defesa:
-            students.append({
-                "nome": nome,
-                "defesa": defesa
-            })
+        # Mostra "EM ANDAMENTO" para alunos sem defesa
+        if not defesa:
+            defesa = "EM ANDAMENTO"
+        
+        students.append({
+            "nome": nome,
+            "defesa": defesa,
+            "status": status,
+            "turma": turma
+        })
             
     return students
+
+
+def get_aluno_origem(nome_aluno):
+    """Verifica se o aluno possui dados JSON (Lattes) ou HTML (Escavador) disponíveis."""
+    # --- CANAL 1: JSON do Lattes ---
+    if os.path.exists(CACHE_FILE):
+        try:
+            with open(CACHE_FILE, 'r', encoding='utf-8') as f:
+                cache_ids = json.load(f)
+            id_lattes = cache_ids.get(nome_aluno, "").strip()
+            if id_lattes and re.match(r'^\d{16}$', id_lattes):
+                json_dir = "scriptLattes/resultados/json"
+                arquivos = glob.glob(os.path.join(json_dir, f"*_{id_lattes}.json"))
+                if arquivos:
+                    return "json"
+        except:
+            pass
+
+    # --- CANAL 2: HTML do Escavador ---
+    nome_pasta_limpo = re.sub(r'[\\/*?:"<>|]', "", nome_aluno)
+    caminho_html = os.path.join(BASE_DIR_PERFIS, nome_pasta_limpo, "perfil.html")
+    if os.path.exists(caminho_html):
+        return "html"
+
+    return "none"
 
 def gerar_lista_alunos_scriptlattes(filename="scriptLattes/lista_alunos.txt"):
     """

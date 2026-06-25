@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from typing import List
 import uvicorn
 
-from data_parser import load_students, obter_conteudo_academico_hibrido, gerar_lista_alunos_scriptlattes
+from data_parser import load_students, get_aluno_origem, obter_conteudo_academico_hibrido, gerar_lista_alunos_scriptlattes
 from llm import analyze_profile_with_llm
 
 app = FastAPI(title="Scanner Pós-Mestrado API")
@@ -25,11 +25,17 @@ app.add_middleware(
 class AlunoResponse(BaseModel):
     nome: str
     defesa: str
+    status: str = ""
+    turma: int = 0
+    origem: str = "none"
 
 @app.get("/api/alunos", response_model=List[AlunoResponse])
 def listar_alunos():
     try:
-        return load_students()
+        alunos = load_students()
+        for aluno in alunos:
+            aluno["origem"] = get_aluno_origem(aluno["nome"])
+        return alunos
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
