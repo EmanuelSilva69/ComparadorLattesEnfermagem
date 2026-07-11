@@ -225,6 +225,13 @@
                     <option value="todas">Todas</option>
                 </select>
             </div>
+            <div class="filter-bar">
+                <label>Modelo:</label>
+                <select id="seletorModelo">
+                    <option value="phi3">Phi-3.5 (3.8B)</option>
+                    <option value="vibethinker">VibeThinker-3B</option>
+                </select>
+            </div>
         </div>
         <div class="controls-group">
             <button class="btn-outline" onclick="dispararAtualizacao('lattes')">Atualizar JSONs (Lattes)</button>
@@ -384,17 +391,20 @@
 
             if (!targetRow) return;
 
+            const modelo = document.getElementById('seletorModelo').value;
+            const modeloLabel = document.getElementById('seletorModelo').selectedOptions[0].text;
+
             const resumoCell = targetRow.cells[3];
             const btn = resumoCell.querySelector('.btn-analisar');
             if (btn) btn.remove();
-            resumoCell.innerHTML = `<span class="spinner"></span> Analisando...`;
+            resumoCell.innerHTML = `<span class="spinner"></span> Analisando (${modeloLabel})...`;
             resumoCell.classList.remove('resumo-placeholder');
 
             try {
-                const res = await fetch(`${API_URL}/analisar/${encodeURIComponent(nome)}`);
+                const res = await fetch(`${API_URL}/analisar/${encodeURIComponent(nome)}?modelo=${modelo}`);
                 const resultado = await res.json();
                 const textoResumo = resultado.resumo || resultado.resumo_ia || "Nenhum resumo gerado.";
-                resumoCell.innerHTML = textoResumo;
+                resumoCell.innerHTML = `<span style="font-size:0.7rem;color:#64748b;display:block;margin-bottom:4px;">Modelo: ${modeloLabel}</span>${textoResumo}`;
             } catch (e) {
                 resumoCell.innerText = "Falha crítica de comunicação.";
             }

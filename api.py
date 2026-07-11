@@ -10,7 +10,7 @@ from typing import List
 import uvicorn
 
 from data_parser import load_students, get_aluno_origem, obter_conteudo_academico_hibrido, gerar_lista_alunos_scriptlattes
-from llm import analyze_profile_with_llm
+from llm import analyze_profile_with_llm, analyze_with_vibethinker
 
 app = FastAPI(title="Scanner Pós-Mestrado API")
 
@@ -40,7 +40,7 @@ def listar_alunos():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/analisar/{nome}")
-def analisar_aluno(nome: str):
+def analisar_aluno(nome: str, modelo: str = "phi3"):
     alunos = load_students()
     aluno_alvo = next((a for a in alunos if a["nome"].strip().upper() == nome.strip().upper()), None)
     
@@ -57,12 +57,17 @@ def analisar_aluno(nome: str):
         }
         
     origem = "Lattes (JSON)" if "via scriptLattes" in conteudo else "Escavador (HTML)"
-    resumo_ia = analyze_profile_with_llm(conteudo, aluno_alvo["defesa"])
+
+    if modelo == "vibethinker":
+        resumo_ia = analyze_with_vibethinker(conteudo, aluno_alvo["defesa"])
+    else:
+        resumo_ia = analyze_profile_with_llm(conteudo, aluno_alvo["defesa"])
     
     return {
         "nome": aluno_alvo["nome"],
         "defesa": aluno_alvo["defesa"],
         "origem": origem,
+        "modelo": modelo,
         "resumo": resumo_ia
     }
 

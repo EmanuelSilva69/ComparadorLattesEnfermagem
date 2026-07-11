@@ -6,6 +6,38 @@ import glob
 CACHE_FILE = "mapeamento_lattes.json"
 BASE_DIR_PERFIS = "escavador_perfis"
 
+def extrair_texto_html(html):
+    text = html
+
+    text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
+    text = re.sub(r'/*# sourceMappingURL=data:[^ ]+', '', text)
+    text = re.sub(r'data:image/[^;]+;base64[^"]+', '', text)
+
+    desc = re.search(r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']+)["\']', html, re.IGNORECASE)
+    meta_desc = desc.group(1) if desc else ""
+
+    text = re.sub(r'<(br|/p|/div|/li|/tr|/h[1-6]|/header|/section|/footer)>', '\n', text, flags=re.IGNORECASE)
+    text = re.sub(r'<[^>]+>', ' ', text)
+    text = re.sub(r'&[a-zA-Z]+;', ' ', text)
+    text = re.sub(r'[ \t]+', ' ', text)
+
+    lines = [l.strip() for l in text.split('\n') if l.strip()]
+    lines = [l for l in lines if len(l) > 15]
+
+    result = "\n".join(lines)
+
+    if meta_desc:
+        result = f"--- RESUMO ---\n{meta_desc}\n\n--- DETALHES ---\n{result}"
+
+    lines_out = result.split('\n')
+    if len(lines_out) > 150:
+        lines_out = lines_out[:150]
+        result = "\n".join(lines_out) + "\n[...]"
+
+    return result
+
 def load_students(filepath="academicData.ts"):
     """Carrega a lista de alunos a partir do arquivo TypeScript."""
     if not os.path.exists(filepath):
@@ -159,8 +191,10 @@ def obter_conteudo_academico_hibrido(nome_aluno):
         try:
             with open(caminho_html, "r", encoding="utf-8") as f:
                 html_bruto = f.read()
+
+            texto_limpo = extrair_texto_html(html_bruto)
             
-            return f"--- DADOS PROVENIENTES DO HTML DO ESCAVADOR (FALLBACK) ---\nNOME DO ALUNO: {nome_aluno}\n{html_bruto}"
+            return f"--- DADOS PROVENIENTES DO HTML DO ESCAVADOR (FALLBACK) ---\nNOME DO ALUNO: {nome_aluno}\n{texto_limpo}"
         except:
             pass
             
