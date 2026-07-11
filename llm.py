@@ -1,6 +1,8 @@
 import ollama
 import re
+import os
 
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
 MODEL_NAME = "phi3.5:3.8b"
 ALTERNATIVE_MODELS = {
     "vibethinker": "hf.co/prithivMLmods/VibeThinker-3B-GGUF:F16",
@@ -36,7 +38,7 @@ def analyze_profile_with_llm(conteudo_bruto, data_defesa, model_key="phi3"):
 3. Tema geral das pesquisas + ano
 4. Tema geral das pesquisas + ano"""
     try:
-        raw = ollama.Client(host="http://127.0.0.1:11434").chat(
+        raw = ollama.Client(host=OLLAMA_HOST).chat(
             model=model,
             messages=[
                 {"role": "system", "content": "Responda APENAS as 4 linhas. Nenhum raciocinio, nenhuma explicacao, nenhum pensamento antes ou depois. So as 4 linhas."},
