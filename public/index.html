@@ -234,6 +234,7 @@
             </div>
         </div>
         <div class="controls-group">
+            <button class="btn-outline" onclick="carregarResumosCache()">Carregar resumos do cache (sem LLM)</button>
             <button class="btn-outline" onclick="dispararAtualizacao('lattes')">Atualizar JSONs (Lattes)</button>
             <button class="btn-outline" onclick="dispararAtualizacao('escavador')">Atualizar HTMLs (Escavador)</button>
         </div>
@@ -407,6 +408,35 @@
                 resumoCell.innerHTML = `<span style="font-size:0.7rem;color:#64748b;display:block;margin-bottom:4px;">Modelo: ${modeloLabel}</span>${textoResumo}`;
             } catch (e) {
                 resumoCell.innerText = "Falha crítica de comunicação.";
+            }
+        }
+
+        async function carregarResumosCache() {
+            const container = document.getElementById('tabelaContainer');
+            try {
+                const res = await fetch(`${API_URL}/resumos-cache`);
+                if (!res.ok) throw new Error('Cache indisponível');
+                const cache = await res.json();
+
+                const allRows = container.querySelectorAll('tr');
+                let preenchidos = 0;
+                for (const row of allRows) {
+                    if (!row.cells || !row.cells[0]) continue;
+                    const nome = row.cells[0].innerText.trim();
+                    const resumoCell = row.cells[3];
+                    const valor = cache[nome];
+
+                    resumoCell.classList.remove('resumo-placeholder');
+                    if (valor && typeof valor === 'string' && valor.trim()) {
+                        resumoCell.innerHTML = `<span style="font-size:0.7rem;color:#64748b;display:block;margin-bottom:4px;">Cache (sem LLM)</span>${valor}`;
+                        preenchidos++;
+                    } else {
+                        resumoCell.innerHTML = `<span style="font-size:0.7rem;color:#64748b;display:block;margin-bottom:4px;">Cache (sem LLM)</span><span class="resumo-placeholder">Sem dados pós-defesa</span>`;
+                    }
+                }
+                alert(`Cache aplicado: ${preenchidos} resumo(s) preenchido(s).`);
+            } catch (e) {
+                alert("Erro ao carregar o cache de resumos.");
             }
         }
 

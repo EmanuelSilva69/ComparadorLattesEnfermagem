@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import subprocess
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -95,6 +96,15 @@ def update_lattes(background_tasks: BackgroundTasks):
 def update_escavador(background_tasks: BackgroundTasks):
     background_tasks.add_task(tarefa_atualizar_escavador)
     return {"status": "Processo do Escavador iniciado no terminal."}
+
+# --- CACHE DE RESUMOS (sem LLM) ---
+@app.get("/api/resumos-cache")
+def resumos_cache():
+    cache_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resumos_cache.json")
+    if not os.path.exists(cache_path):
+        raise HTTPException(status_code=404, detail="resumos_cache.json não encontrado.")
+    with open(cache_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 # --- ARQUIVOS ESTÁTICOS ---
 os.makedirs("public", exist_ok=True)
